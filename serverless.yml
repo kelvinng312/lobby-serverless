@@ -1,3 +1,5 @@
+org: valor312
+app: lobby-serverless-app
 service: lobby-serverless
 
 provider:

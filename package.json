@@ -5,7 +5,8 @@
   "main": "handler.js",
   "scripts": {
     "start": "./node_modules/.bin/serverless offline -s dev",
-    "debug": "SET SLS_DEBUG=* && node --inspect C:\\\\Users\\valor\\AppData\\Roaming\\npm\\node_modules\\serverless\\bin\\serverless offline -s dev"
+    "debug": "SET SLS_DEBUG=* && node --inspect C:\\\\Users\\valor\\AppData\\Roaming\\npm\\node_modules\\serverless\\bin\\serverless offline -s dev",
+    "startdb": "serverless dynamodb start --migrate"
   },
   "keywords": [],
   "author": "",
