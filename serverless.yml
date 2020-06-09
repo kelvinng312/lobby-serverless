@@ -7,13 +7,10 @@ provider:
     region: us-east-1
     environment:
         tableName: ${self:custom.tableName}
-        bucketName: ${self:custom.bucketName}
     iamRoleStatements:
         - Effect: Allow
           Action:
               - dynamodb:*
-              - s3:*
-              - ses:*
           Resource: "*"
 
 plugins:
@@ -21,8 +18,7 @@ plugins:
     - serverless-dynamodb-local
 
 custom:
-    tableName: player-points-table
-    bucketName: myserverlessprojectuploadbucket-123123
+    tableName: WebsocketUsers
     dynamodb:
         stages:
             - dev
@@ -34,51 +30,40 @@ custom:
             dir: offline/migrations
 
 functions:
-    getPlayerScore:
-        handler: lambdas/endpoints/getPlayerScore.handler
+    websocket-connect:
+        handler: lambdas/websockets/connect.handler
         events:
-            - http:
-                  path: get-player-score/{ID}
-                  method: GET
-                  cors: true
-    createPlayerScore:
-        handler: lambdas/endpoints/createPlayerScore.handler
+            - websocket:
+                  route: $connect
+    websocket-disconnect:
+        handler: lambdas/websockets/disconnect.handler
         events:
-            - http:
-                  path: create-player-score/{ID}
-                  method: POST
-                  cors: true
-
-    createFile:
-        handler: lambdas/endpoints/createFile.handler
+            - websocket:
+                  route: $disconnect
+    websocket-default:
+        handler: lambdas/websockets/default.handler
         events:
-            - http:
-                  path: create-file/{fileName}
-                  method: POST
-                  cors: true
-    getFile:
-        handler: lambdas/endpoints/getFile.handler
+            - websocket:
+                  route: $default
+    websocket-message:
+        handler: lambdas/websockets/message.handler
         events:
-            - http:
-                  path: get-file/{fileName}
-                  method: GET
-                  cors: true
-
-    sendEmail:
-        handler: lambdas/endpoints/sendEmail.handler
+            - websocket:
+                  route: message
+    websocket-status:
+        handler: lambdas/websockets/status.handler
         events:
-            - http:
-                  path: send-email
-                  method: POST
-                  cors: true
+            - websocket:
+                  route: status
+    websocket-name_request:
+        handler: lambdas/websockets/name_request.handler
+        events:
+            - websocket:
+                  route: name_request
 
 resources:
     Resources:
-        DemoBucketUpload:
-            Type: AWS::S3::Bucket
-            Properties:
-                BucketName: ${self:custom.bucketName}
-        MyDynamoDbTable:
+        WebsocketUserTable:
             Type: AWS::DynamoDB::Table
             Properties:
                 TableName: ${self:custom.tableName}
