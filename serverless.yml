@@ -1,21 +1,20 @@
-
 service: lobby-serverless
 
 provider:
-  name: aws
-  runtime: nodejs12.x
-  stage: dev
-  region: us-east-1
-  environment:
+    name: aws
+    runtime: nodejs12.x
+    stage: dev
+    region: us-east-1
+    environment:
         tableName: ${self:custom.tableName}
         bucketName: ${self:custom.bucketName}
-  iamRoleStatements:
-      - Effect: Allow
-        Action:
-            - dynamodb:*
-            - s3:*
-            - ses:*
-        Resource: '*'
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - dynamodb:*
+              - s3:*
+              - ses:*
+          Resource: "*"
 
 plugins:
     - serverless-offline
@@ -35,9 +34,13 @@ custom:
             dir: offline/migrations
 
 functions:
-  hello:
-    handler: handler.hello
-    
+    hello:
+        handler: handler.hello
+        events:
+            - http:
+                path: hello
+                method: get
+
 resources:
     Resources:
         DemoBucketUpload:
@@ -55,5 +58,3 @@ resources:
                     - AttributeName: ID
                       KeyType: HASH
                 BillingMode: PAY_PER_REQUEST
-
-

@@ -4,12 +4,15 @@
   "description": "",
   "main": "handler.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "./node_modules/.bin/serverless offline -s dev",
+    "debug": "SET SLS_DEBUG=* && node --inspect C:\\\\Users\\valor\\AppData\\Roaming\\npm\\node_modules\\serverless\\bin\\serverless offline -s dev"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "aws-sdk": "^2.692.0",
+    "serverless-dynamodb-local": "^0.2.39",
     "serverless-offline": "^6.4.0"
   }
 }
