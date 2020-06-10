@@ -17,7 +17,7 @@ exports.handler = async event => {
             domainName,
             stage,
             connectionId: item.ID,
-            message: JSON.stringify({ type: "status", sender: connectionId, content: data.Items.length})
+            message: JSON.stringify({ type: "status", players: data.Items})
         });
     }
 

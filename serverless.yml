@@ -3,76 +3,81 @@ app: lobby-serverless-app
 service: lobby-serverless
 
 provider:
-    name: aws
-    runtime: nodejs12.x
-    stage: dev
-    region: us-east-1
-    environment:
-        tableName: ${self:custom.tableName}
-    iamRoleStatements:
-        - Effect: Allow
-          Action:
-              - dynamodb:*
-          Resource: "*"
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-east-1
+  environment:
+    tableName: ${self:custom.tableName}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource: "*"
 
 plugins:
-    - serverless-offline
-    - serverless-dynamodb-local
+  - serverless-offline
+  - serverless-dynamodb-local
 
 custom:
-    tableName: WebsocketUsers
-    dynamodb:
-        stages:
-            - dev
-        start:
-            port: 8000
-            inMemory: true
-            migrate: true
-        migration:
-            dir: offline/migrations
+  tableName: WebsocketUsers
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+    migration:
+      dir: offline/migrations
 
 functions:
-    websocket-connect:
-        handler: lambdas/websockets/connect.handler
-        events:
-            - websocket:
-                  route: $connect
-    websocket-disconnect:
-        handler: lambdas/websockets/disconnect.handler
-        events:
-            - websocket:
-                  route: $disconnect
-    websocket-default:
-        handler: lambdas/websockets/default.handler
-        events:
-            - websocket:
-                  route: $default
-    websocket-message:
-        handler: lambdas/websockets/message.handler
-        events:
-            - websocket:
-                  route: message
-    websocket-status:
-        handler: lambdas/websockets/status.handler
-        events:
-            - websocket:
-                  route: status
-    websocket-name_request:
-        handler: lambdas/websockets/name_request.handler
-        events:
-            - websocket:
-                  route: name_request
+  websocket-connect:
+    handler: lambdas/websockets/connect.handler
+    events:
+      - websocket:
+          route: $connect
+  websocket-disconnect:
+    handler: lambdas/websockets/disconnect.handler
+    events:
+      - websocket:
+          route: $disconnect
+  websocket-default:
+    handler: lambdas/websockets/default.handler
+    events:
+      - websocket:
+          route: $default
+  websocket-set_name:
+    handler: lambdas/websockets/set_name.handler
+    events:
+      - websocket:
+          route: set_name
+  websocket-get_status:
+    handler: lambdas/websockets/get_status.handler
+    events:
+      - websocket:
+          route: get_status
+  websocket-change_status:
+    handler: lambdas/websockets/change_status.handler
+    events:
+      - websocket:
+          route: change_status
+  websocket-sync_session:
+    handler: lambdas/websockets/sync_session.handler
+    events:
+      - websocket:
+        route: sync_session
 
 resources:
-    Resources:
-        WebsocketUserTable:
-            Type: AWS::DynamoDB::Table
-            Properties:
-                TableName: ${self:custom.tableName}
-                AttributeDefinitions:
-                    - AttributeName: ID
-                      AttributeType: S
-                KeySchema:
-                    - AttributeName: ID
-                      KeyType: HASH
-                BillingMode: PAY_PER_REQUEST
+  Resources:
+    WebsocketUserTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.tableName}
+        AttributeDefinitions:
+          - AttributeName: ID
+            AttributeType: S
+        KeySchema:
+          - AttributeName: ID
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
