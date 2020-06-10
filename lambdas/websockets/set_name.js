@@ -1,9 +1,15 @@
 const Responses = require("../common/API_Responses");
+const Dynamo = require("../common/Dynamo");
 const WebSocket = require("../common/WebSocket");
+
+const tableName = process.env.tableName;
 
 exports.handler = async (event) => {
   const { connectionId } = event.requestContext;
   const body = JSON.parse(event.body);
+
+  console.log('event', event);
+  console.log('body', body);
 
   try {
     // Update self record
@@ -23,6 +29,8 @@ exports.handler = async (event) => {
 
     return Responses._200({ message: "Message received" });
   } catch (error) {
+    console.log('error', error);
+
     return Responses._400({ message: "Message not received" });
   }
 };

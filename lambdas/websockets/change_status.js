@@ -6,30 +6,44 @@ const tableName = process.env.tableName;
 
 exports.handler = async (event) => {
   const { connectionId } = event.requestContext;
-
   const body = JSON.parse(event.body);
+
+  console.log("event", event);
+  console.log("body", body);
 
   try {
     // Update self record
     let selfRecord = await Dynamo.get(connectionId, tableName);
     selfRecord.status = body.status;
-    const { domainName, stage } = selfRecord;
+    const { status, domainName, stage } = selfRecord;
 
+    if (status != "Searching") {
+      selfRecord.isMaster = false;
+    }
+
+    console.log("updating self record", selfRecord);
     await Dynamo.write(selfRecord, tableName);
 
     // Read all record from the table
     const tableData = await Dynamo.scan(tableName);
+    console.log("scaned data", tableData);
 
     // Check wheather need to start a game
     let masterPlayer = null;
-    if (newStatus == "Searching") {
+
+    console.log("new status", status);
+    if (status == "Searching") {
       // Find a master player
       for (const item of tableData.Items) {
-        if (item.status == "Searching" && item.isMaster) {
-          masterPlayer = item;
-          break;
+        if (item.ID != selfRecord.ID) {
+          if (item.status == "Searching" && item.isMaster) {
+            masterPlayer = item;
+            break;
+          }
         }
       }
+
+      console.log("master player", masterPlayer);
 
       // If there isn't a master player, become the master player
       if (masterPlayer == null) {
@@ -46,25 +60,30 @@ exports.handler = async (event) => {
     }
 
     // Broadcast status
-    for (const item of tableData.Items) {
+    const updatedTableData = await Dynamo.scan(tableName);
+    for (const item of updatedTableData.Items) {
       await WebSocket.send({
         domainName,
         stage,
         connectionId: item.ID,
-        message: JSON.stringify({ type: "status", players: data.Items }),
+        message: JSON.stringify({ type: "status", players: updatedTableData.Items }),
       });
     }
 
     // Start a game
-    await WebSocket.send({
-      domainName,
-      stage,
-      connectionId: masterPlayer.ID,
-      message: JSON.stringify({ type: "create_session", oponentId: selfRecord.ID }),
-    });
+    if (masterPlayer != null) {
+      await WebSocket.send({
+        domainName,
+        stage,
+        connectionId: masterPlayer.ID,
+        message: JSON.stringify({ type: "create_session", oponentId: selfRecord.ID }),
+      });
+    }
 
     return Responses._200({ message: "Message received" });
   } catch (error) {
+    console.log("error", error);
+
     return Responses._400({ message: "Message not received" });
   }
 };

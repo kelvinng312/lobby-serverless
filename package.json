@@ -13,6 +13,7 @@
   "license": "ISC",
   "devDependencies": {
     "aws-sdk": "^2.692.0",
+    "eslint": "^7.2.0",
     "serverless-dynamodb-local": "^0.2.39",
     "serverless-offline": "^6.4.0"
   }

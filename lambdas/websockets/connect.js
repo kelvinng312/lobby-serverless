@@ -1,5 +1,5 @@
-const Responses = require('../common/API_Responses');
-const Dynamo = require('../common/Dynamo');
+const Responses = require("../common/API_Responses");
+const Dynamo = require("../common/Dynamo");
 
 const tableName = process.env.tableName;
 
