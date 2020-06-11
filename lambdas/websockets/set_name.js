@@ -16,8 +16,8 @@ exports.handler = async (event) => {
     let maxVisitorIndex = 0;
     const tableData = await Dynamo.scan(tableName);
     for (const item of tableData.Items) {
-      if (item.name.includes("Visitor")) {
-        const curVisitorIndex = parseInt(item.name.replace("Visitor", ""));
+      if (item.playerName.includes("Visitor")) {
+        const curVisitorIndex = parseInt(item.playerName.replace("Visitor", ""));
         if (curVisitorIndex > maxVisitorIndex) {
           maxVisitorIndex = curVisitorIndex;
         }
@@ -25,17 +25,19 @@ exports.handler = async (event) => {
     }
 
     // Update new name if he is a visitor
-    let newName = body.name;
-    if (newName == "Visitor") {
+    let newPlayerName = body.playerName;
+    if (newPlayerName == "Visitor") {
       maxVisitorIndex++;
-      newName += maxVisitorIndex;
+      newPlayerName += maxVisitorIndex;
     }
 
     // Update self record
     let selfRecord = await Dynamo.get(connectionId, tableName);
-    selfRecord.name = newName;
+    selfRecord.playerName = newPlayerName;
     const { domainName, stage } = selfRecord;
     await Dynamo.write(selfRecord, tableName);
+
+    console.log('selfRecord', selfRecord);
 
 
     // Answer with Id
@@ -43,7 +45,7 @@ exports.handler = async (event) => {
         domainName,
         stage,
         connectionId,
-        message: JSON.stringify({ type: "ans_name", name: newName, Id: connectionId }),
+        message: JSON.stringify({ type: "ans_name", playerName: newPlayerName, Id: connectionId }),
       });
 
     return Responses._200({ message: "Message received" });

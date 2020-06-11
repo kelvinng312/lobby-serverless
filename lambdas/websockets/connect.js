@@ -13,8 +13,8 @@ exports.handler = async event => {
         domainName,
         stage,
 
-        name: "-",
-        status: "Normal",
+        playerName: "-",
+        playerStatus: "Normal",
         isMaster: false
     };
 

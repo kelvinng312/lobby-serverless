@@ -14,10 +14,10 @@ exports.handler = async (event) => {
   try {
     // Update self record
     let selfRecord = await Dynamo.get(connectionId, tableName);
-    selfRecord.status = body.status;
-    const { status, domainName, stage } = selfRecord;
+    selfRecord.playerStatus = body.playerStatus;
+    const { playerStatus, domainName, stage } = selfRecord;
 
-    if (status != "Searching") {
+    if (playerStatus != "Searching") {
       selfRecord.isMaster = false;
     }
 
@@ -31,12 +31,12 @@ exports.handler = async (event) => {
     // Check wheather need to start a game
     let masterPlayer = null;
 
-    console.log("new status", status);
-    if (status == "Searching") {
+    console.log("new playerStatus", playerStatus);
+    if (playerStatus == "Searching") {
       // Find a master player
       for (const item of tableData.Items) {
         if (item.ID != selfRecord.ID) {
-          if (item.status == "Searching" && item.isMaster) {
+          if (item.playerStatus == "Searching" && item.isMaster) {
             masterPlayer = item;
             break;
           }
@@ -51,15 +51,15 @@ exports.handler = async (event) => {
 
         await Dynamo.write(selfRecord, tableName);
       } else {
-        masterPlayer.status = "Placing";
+        masterPlayer.playerStatus = "Placing";
         await Dynamo.write(masterPlayer, tableName);
 
-        selfRecord.status = "Placing";
+        selfRecord.playerStatus = "Placing";
         await Dynamo.write(selfRecord, tableName);
       }
     }
 
-    // Broadcast status
+    // Broadcast playerStatus
     const updatedTableData = await Dynamo.scan(tableName);
     for (const item of updatedTableData.Items) {
       await WebSocket.send({

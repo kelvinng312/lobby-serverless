@@ -17,7 +17,14 @@ exports.handler = async (event) => {
     let selfRecord = await Dynamo.get(connectionId, tableName);
     const { domainName, stage } = selfRecord;
 
-    // Synchronize the oponent player with game session ID
+    // Synchronize the self and the oponent player with game session ID
+    await WebSocket.send({
+      domainName,
+      stage,
+      connectionId: connectionId,
+      message: JSON.stringify({ type: "join_session", sessionId }),
+    });
+
     await WebSocket.send({
       domainName,
       stage,
