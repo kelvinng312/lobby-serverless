@@ -1,6 +1,6 @@
 org: valor312
-app: lobby-serverless-app
-service: lobby-serverless
+app: soldierwar-serverless-app
+service: lobby
 
 provider:
   name: aws
